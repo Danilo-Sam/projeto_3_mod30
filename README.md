@@ -23,7 +23,6 @@
         <li><a href="#execucao-dos-testes">Execução dos Testes</a></li>
         <li><a href="#banco-de-dados">Banco de Dados</a></li>
         <li><a href="#ferramentas">Ferramentas</a></li>
-        <li><a href="#contato">Contato</a></li>
     </ol>
 </details>
 
@@ -184,14 +183,6 @@ VendasModulo30
         <li><img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="Badge PostgreSQL"></li>
         <li><img src="https://img.shields.io/badge/Eclipse-2C2255?style=for-the-badge&logo=eclipse&logoColor=white" alt="Badge Eclipse"></li>
     </ul>
-</section>
-
-<section id="contato">
-    <h2>Contato</h2>
-    <ul>
-        <li><a href="https://linktr.ee/anaeanali5" target="_blank"><img src="https://img.shields.io/badge/Ana_Alice_Rodrigues-blue?style=for-the-badge" alt="Perfil de Ana Alice Rodrigues"></a></li> 
-    </ul>
-    
 </section>
 
 </body>
