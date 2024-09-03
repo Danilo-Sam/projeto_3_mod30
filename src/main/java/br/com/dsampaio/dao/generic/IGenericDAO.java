@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import br.com.dsampaio.dao.Persistente;
 import br.com.dsampaio.exceptions.ExceptionDao;
+import br.com.dsampaio.exceptions.ExceptionElementoNaoConhecido;
 import br.com.dsampaio.exceptions.ExceptionMaisDeUmRegistro;
 import br.com.dsampaio.exceptions.ExceptionTable;
 import br.com.dsampaio.exceptions.ExceptionTipoChaveNaoEncontrada;
@@ -17,7 +18,7 @@ public interface IGenericDAO<T extends Persistente, E extends Serializable> {
 
     public void alterar(T entity) throws ExceptionTipoChaveNaoEncontrada, ExceptionDao;
 
-    public T consultar(E valor) throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao;
+    public T consultar(E valor) throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTipoChaveNaoEncontrada;
 
-    public Collection<T> buscarTodos() throws ExceptionDao;
+    public Collection<T> buscarTodos() throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable;
 }

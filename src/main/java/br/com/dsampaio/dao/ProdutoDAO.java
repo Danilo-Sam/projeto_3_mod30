@@ -43,7 +43,6 @@ public class ProdutoDAO extends GenericDAO<Produto, String> implements IProdutoD
         return "DELETE FROM TB_PRODUTO WHERE CODIGO = ?";
     }
 
-    @Override
     protected String getQuerytAtualizacao() {
         StringBuilder sb = new StringBuilder();
         sb.append("UPDATE TB_PRODUTO ");
@@ -88,4 +87,10 @@ public class ProdutoDAO extends GenericDAO<Produto, String> implements IProdutoD
     protected void setParametrosQuerySelect(PreparedStatement stmSelect, String valor) throws SQLException {
         stmSelect.setString(1, valor);
     }
+
+	@Override
+	protected String getQueryAtualizacao() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -3,6 +3,7 @@ package test.br.com.dsampaio;
 import br.com.dsampaio.dao.ProdutoDAO;
 import br.com.dsampaio.domain.Produto;
 import br.com.dsampaio.exceptions.ExceptionDao;
+import br.com.dsampaio.exceptions.ExceptionElementoNaoConhecido;
 import br.com.dsampaio.exceptions.ExceptionTipoChaveNaoEncontrada;
 import br.com.dsampaio.services.IProdutoService;
 import br.com.dsampaio.services.ProdutoService;
@@ -45,7 +46,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    public void pesquisar() throws ExceptionDao, ExceptionTipoChaveNaoEncontrada {
+    public void pesquisar() throws ExceptionDao, ExceptionTipoChaveNaoEncontrada, SecurityException, ExceptionElementoNaoConhecido {
         produtoService.cadastrar(produto);
         Produto produtoConsultado = this.produtoService.consultar(produto.getCodigo());
         Assert.assertNotNull(produtoConsultado);
@@ -58,7 +59,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    public void excluir() throws ExceptionDao, ExceptionTipoChaveNaoEncontrada {
+    public void excluir() throws ExceptionDao, ExceptionTipoChaveNaoEncontrada, SecurityException, ExceptionElementoNaoConhecido {
         produtoService.cadastrar(produto);
         produtoService.excluir(produto.getCodigo());
         Produto produtoConsultado = this.produtoService.consultar(produto.getCodigo());
@@ -66,7 +67,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    public void alterarProduto() throws ExceptionTipoChaveNaoEncontrada, ExceptionDao {
+    public void alterarProduto() throws ExceptionTipoChaveNaoEncontrada, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         produtoService.cadastrar(produto);
         produto.setNome("Produto Teste Alterado");
         produtoService.alterar(produto);

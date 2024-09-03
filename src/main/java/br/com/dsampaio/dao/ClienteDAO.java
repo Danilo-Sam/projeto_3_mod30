@@ -44,7 +44,6 @@ public class ClienteDAO extends GenericDAO<Cliente, Long> implements IClienteDAO
         return "DELETE FROM TB_CLIENTE WHERE CPF = ?";
     }
 
-    @Override
     protected String getQuerytAtualizacao() {
         StringBuilder sb = new StringBuilder();
         sb.append("UPDATE TB_CLIENTE ");
@@ -95,4 +94,10 @@ public class ClienteDAO extends GenericDAO<Cliente, Long> implements IClienteDAO
     protected void setParametrosQuerySelect(PreparedStatement stmSelect, Long valor) throws SQLException {
         stmSelect.setLong(1, valor);
     }
+
+	@Override
+	protected String getQueryAtualizacao() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

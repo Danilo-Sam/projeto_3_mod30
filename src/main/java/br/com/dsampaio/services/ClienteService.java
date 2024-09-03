@@ -2,8 +2,10 @@ package br.com.dsampaio.services;
 
 import br.com.dsampaio.dao.IClienteDAO;
 import br.com.dsampaio.exceptions.ExceptionDao;
+import br.com.dsampaio.exceptions.ExceptionElementoNaoConhecido;
 import br.com.dsampaio.exceptions.ExceptionMaisDeUmRegistro;
 import br.com.dsampaio.exceptions.ExceptionTable;
+import br.com.dsampaio.exceptions.ExceptionTipoChaveNaoEncontrada;
 import br.com.dsampaio.services.generic.GenericService;
 import br.com.dsampaio.domain.Cliente;
 
@@ -14,7 +16,7 @@ public class ClienteService extends GenericService<Cliente, Long> implements ICl
 		//this.clienteDAO = clienteDAO;
 	}
 	
-	public Cliente buscarPorCPF(Long cpf) throws ExceptionDao {
+	public Cliente buscarPorCPF(Long cpf) throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTipoChaveNaoEncontrada {
 		try {
 			return this.dao.consultar(cpf);
 		} catch (ExceptionMaisDeUmRegistro | ExceptionTable e) {

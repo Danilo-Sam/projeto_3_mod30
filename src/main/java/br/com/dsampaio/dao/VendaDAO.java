@@ -68,7 +68,6 @@ public class VendaDAO extends GenericDAO<Venda, String> implements IVendaDAO {
         throw new UnsupportedOperationException("Operação não permitida");
     }
 
-    @Override
     protected String getQuerytAtualizacao() {
         return "UPDATE TB_VENDA SET CODIGO = ?, ID_CLIENTE_FK = ?, VALOR_TOTAL = ?, DATA_VENDA = ?, STATUS_VENDA = ? WHERE ID = ?";
     }
@@ -243,4 +242,10 @@ public class VendaDAO extends GenericDAO<Venda, String> implements IVendaDAO {
             closeConnection(connection, stm, null);
         }
     }
+
+	@Override
+	protected String getQueryAtualizacao() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

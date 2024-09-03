@@ -11,6 +11,7 @@ import br.com.dsampaio.dao.ClienteDAO;
 import br.com.dsampaio.dao.IClienteDAO;
 import br.com.dsampaio.domain.Cliente;
 import br.com.dsampaio.exceptions.ExceptionDao;
+import br.com.dsampaio.exceptions.ExceptionElementoNaoConhecido;
 import br.com.dsampaio.exceptions.ExceptionMaisDeUmRegistro;
 import br.com.dsampaio.exceptions.ExceptionTable;
 import br.com.dsampaio.exceptions.ExceptionTipoChaveNaoEncontrada;
@@ -25,7 +26,7 @@ public class ClienteDAOTest {
     }
 
     @After
-    public void tearDown() throws ExceptionDao {
+    public void tearDown() throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable {
         Collection<Cliente> list = clienteDao.buscarTodos();
         for (Cliente cliente : list) {
             clienteDao.excluir(cliente.getCpf());
@@ -41,13 +42,13 @@ public class ClienteDAOTest {
         cliente.setEstado("EX");
         cliente.setNumero(123);
         cliente.setTelefone(1199999999L);
-        cliente.setIdade(30L);
+        cliente.setIdade(30);
         cliente.setEmail(nome.toLowerCase().replace(" ", ".") + "@example.com");
         return cliente;
     }
 
     @Test
-    public void testPesquisarCliente() throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionTipoChaveNaoEncontrada, ExceptionDao {
+    public void testPesquisarCliente() throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionTipoChaveNaoEncontrada, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         Cliente cliente = criarCliente(11111111111L, "Carlos Alberto");
         clienteDao.cadastrar(cliente);
         
@@ -57,7 +58,7 @@ public class ClienteDAOTest {
     }
     
     @Test
-    public void testSalvarCliente() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void testSalvarCliente() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         Cliente cliente = criarCliente(22222222222L, "Patrícia Lima");
         Boolean retorno = clienteDao.cadastrar(cliente);
         Assert.assertTrue("Cliente não foi cadastrado", retorno);
@@ -68,7 +69,7 @@ public class ClienteDAOTest {
     }
     
     @Test
-    public void testExcluirCliente() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void testExcluirCliente() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         Cliente cliente = criarCliente(33333333333L, "Joana Santos");
         clienteDao.cadastrar(cliente);
         
@@ -81,7 +82,7 @@ public class ClienteDAOTest {
     }
     
     @Test
-    public void testAlterarCliente() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void testAlterarCliente() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         Cliente cliente = criarCliente(44444444444L, "Fernando Costa");
         clienteDao.cadastrar(cliente);
         
@@ -97,7 +98,7 @@ public class ClienteDAOTest {
     }
     
     @Test
-    public void testBuscarTodos() throws ExceptionTipoChaveNaoEncontrada, ExceptionDao {
+    public void testBuscarTodos() throws ExceptionTipoChaveNaoEncontrada, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable {
         Cliente cliente1 = criarCliente(55555555555L, "Gabriela Souza");
         Cliente cliente2 = criarCliente(66666666666L, "Renato Fernandes");
         

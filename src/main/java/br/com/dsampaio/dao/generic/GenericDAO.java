@@ -14,11 +14,7 @@ import br.com.dsampaio.annotation.ColunaTabela;
 import br.com.dsampaio.annotation.Tabela;
 import br.com.dsampaio.annotation.TipoChave;
 import br.com.dsampaio.dao.Persistente;
-import br.com.dsampaio.exceptions.ExceptionDao;
-import br.com.dsampaio.exceptions.ExceptionElementoNaoConhecido;
-import br.com.dsampaio.exceptions.ExceptionMaisDeUmRegistro;
-import br.com.dsampaio.exceptions.ExceptionTable;
-import br.com.dsampaio.exceptions.ExceptionTipoChaveNaoEncontrada;
+import br.com.dsampaio.exceptions.*;
 
 public abstract class GenericDAO<T extends Persistente, E extends Serializable> implements IGenericDAO<T, E> {
 
@@ -30,7 +26,7 @@ public abstract class GenericDAO<T extends Persistente, E extends Serializable> 
 
     protected abstract String getQueryExclusao();
 
-    protected abstract String getQuerytAtualizacao();
+    protected abstract String getQueryAtualizacao();
 
     protected abstract void setParametrosQueryInsercao(PreparedStatement stmInsert, T entity) throws SQLException;
 
@@ -40,14 +36,11 @@ public abstract class GenericDAO<T extends Persistente, E extends Serializable> 
 
     protected abstract void setParametrosQuerySelect(PreparedStatement stmSelect, E valor) throws SQLException;
 
-    public GenericDAO() {
-    }
-
     protected Connection getConnection() throws ExceptionDao {
         try {
             return ConnectionFactory.getConnection();
         } catch (SQLException e) {
-            throw new ExceptionDao("ERRO ABRINDO CONEXAO COM O BANCO DE DADOS ", e);
+            throw new ExceptionDao("Erro ao abrir conexão com o banco de dados", e);
         }
     }
 
@@ -70,33 +63,25 @@ public abstract class GenericDAO<T extends Persistente, E extends Serializable> 
     @SuppressWarnings("unchecked")
     public E getChave(T entity) throws ExceptionTipoChaveNaoEncontrada {
         Field[] fields = entity.getClass().getDeclaredFields();
-        E returnValue = null;
-
         for (Field field : fields) {
             if (field.isAnnotationPresent(TipoChave.class)) {
                 TipoChave tipoChave = field.getAnnotation(TipoChave.class);
                 String nameMetodo = tipoChave.value();
                 try {
                     Method method = entity.getClass().getMethod(nameMetodo);
-                    returnValue = (E) method.invoke(entity);
-                    return returnValue;
+                    return (E) method.invoke(entity);
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
                     throw new ExceptionTipoChaveNaoEncontrada(
-                            "Chave principal do objeto " + entity.getClass() + " não encontrada", e);
+                            "Chave principal do objeto " + entity.getClass().getName() + " não encontrada", e);
                 }
             }
         }
-        String msg = "Chave principal do objeto " + entity.getClass() + " não encontrada";
-        throw new ExceptionTipoChaveNaoEncontrada(msg);
+        throw new ExceptionTipoChaveNaoEncontrada("Chave principal do objeto " + entity.getClass().getName() + " não encontrada");
     }
 
     public Boolean cadastrar(T entity) throws ExceptionTipoChaveNaoEncontrada, ExceptionDao {
-        Connection connection = null;
-        PreparedStatement stm = null;
-        try {
-            connection = getConnection();
-            stm = connection.prepareStatement(getQueryInsercao(), Statement.RETURN_GENERATED_KEYS);
+        try (Connection connection = getConnection();
+             PreparedStatement stm = connection.prepareStatement(getQueryInsercao(), Statement.RETURN_GENERATED_KEYS)) {
             setParametrosQueryInsercao(stm, entity);
             int linhaAfetada = stm.executeUpdate();
             if (linhaAfetada > 0) {
@@ -110,140 +95,87 @@ public abstract class GenericDAO<T extends Persistente, E extends Serializable> 
             }
         } catch (SQLException e) {
             throw new ExceptionDao("Erro ao cadastrar objeto", e);
-        } finally {
-            closeConnection(connection, stm, null);
         }
         return false;
     }
 
     public void excluir(E valor) throws ExceptionDao {
-        Connection connection = getConnection();
-        PreparedStatement stm = null;
-        try {
-            stm = connection.prepareStatement(getQueryExclusao());
+        try (Connection connection = getConnection();
+             PreparedStatement stm = connection.prepareStatement(getQueryExclusao())) {
             setParametrosQueryExclusao(stm, valor);
             stm.executeUpdate();
         } catch (SQLException e) {
-            throw new ExceptionDao("Erro ao excluir Objeto", e);
-        } finally {
-            closeConnection(connection, stm, null);
+            throw new ExceptionDao("Erro ao excluir objeto", e);
         }
     }
 
     public void alterar(T entity) throws ExceptionTipoChaveNaoEncontrada, ExceptionDao {
-        Connection connection = getConnection();
-        PreparedStatement stm = null;
-        try {
-            stm = connection.prepareStatement(getQuerytAtualizacao());
+        try (Connection connection = getConnection();
+             PreparedStatement stm = connection.prepareStatement(getQueryAtualizacao())) {
             setParametrosQueryAtualizacao(stm, entity);
             stm.executeUpdate();
         } catch (SQLException e) {
             throw new ExceptionDao("Erro ao alterar objeto", e);
-        } finally {
-            closeConnection(connection, stm, null);
         }
     }
 
-    public T consultar(E valor) throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public T consultar(E valor) throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTipoChaveNaoEncontrada {
         try {
             validarMaisDeUmRegistro(valor);
-            Connection connection = getConnection();
-            PreparedStatement stm = connection.prepareStatement(
-                    "SELECT * FROM " + getTableName() + " WHERE " + getNomeCampoChave(getTipoClasse()) + " = ?");
-            setParametrosQuerySelect(stm, valor);
-            ResultSet rs = stm.executeQuery();
-            if (rs.next()) {
-                T entity = getTipoClasse().getConstructor().newInstance();
-                Field[] fields = entity.getClass().getDeclaredFields();
-                for (Field field : fields) {
-                    if (field.isAnnotationPresent(ColunaTabela.class)) {
-                        ColunaTabela coluna = field.getAnnotation(ColunaTabela.class);
-                        String dbName = coluna.dbName();
-                        String javaSetName = coluna.setJavaName();
-                        Class<?> classField = field.getType();
-                        try {
-                            Method method = entity.getClass().getMethod(javaSetName, classField);
-                            setValueByType(entity, method, classField, rs, dbName);
-                        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                            throw new ExceptionDao("Erro ao consultar objeto ", e);
-                        } catch (ExceptionElementoNaoConhecido e) {
-                            throw new ExceptionDao("Erro ao consultar objeto ", e);
-                        }
+            try (Connection connection = getConnection();
+                 PreparedStatement stm = connection.prepareStatement(
+                         "SELECT * FROM " + getTableName() + " WHERE " + getNomeCampoChave(getTipoClasse()) + " = ?")) {
+                setParametrosQuerySelect(stm, valor);
+                try (ResultSet rs = stm.executeQuery()) {
+                    if (rs.next()) {
+                        T entity = getTipoClasse().getConstructor().newInstance();
+                        preencherEntidade(rs, entity);
+                        return entity;
                     }
                 }
-                return entity;
             }
-        } catch (SQLException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NoSuchMethodException | SecurityException
-                | ExceptionTipoChaveNaoEncontrada e) {
-            throw new ExceptionDao("Erro ao consultar objeto ", e);
+        } catch (SQLException | InstantiationException | IllegalAccessException
+                | InvocationTargetException | NoSuchMethodException e) {
+            throw new ExceptionDao("Erro ao consultar objeto", e);
         }
         return null;
     }
 
-    public Collection<T> buscarTodos() throws ExceptionDao {
+    public Collection<T> buscarTodos() throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable {
         List<T> list = new ArrayList<>();
-        Connection connection = null;
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        try {
-            connection = getConnection();
-            stm = connection.prepareStatement("SELECT * FROM " + getTableName());
-            rs = stm.executeQuery();
+        try (Connection connection = getConnection();
+             PreparedStatement stm = connection.prepareStatement("SELECT * FROM " + getTableName());
+             ResultSet rs = stm.executeQuery()) {
             while (rs.next()) {
                 T entity = getTipoClasse().getConstructor().newInstance();
-                Field[] fields = entity.getClass().getDeclaredFields();
-                for (Field field : fields) {
-                    if (field.isAnnotationPresent(ColunaTabela.class)) {
-                        ColunaTabela coluna = field.getAnnotation(ColunaTabela.class);
-                        String dbName = coluna.dbName();
-                        String javaSetName = coluna.setJavaName();
-                        Class<?> classField = field.getType();
-                        try {
-                            Method method = entity.getClass().getMethod(javaSetName, classField);
-                            setValueByType(entity, method, classField, rs, dbName);
-                        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                            throw new ExceptionDao("ERRO LISTANDO OBJETOS ", e);
-                        } catch (ExceptionElementoNaoConhecido e) {
-                            throw new ExceptionDao("ERRO LISTANDO OBJETOS ", e);
-                        }
-                    }
-                }
+                preencherEntidade(rs, entity);
                 list.add(entity);
             }
-        } catch (SQLException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NoSuchMethodException | SecurityException | ExceptionTable e) {
-            throw new ExceptionDao("ERRO LISTANDO OBJETOS ", e);
-        } finally {
-            closeConnection(connection, stm, rs);
+        } catch (SQLException | InstantiationException | IllegalAccessException
+                | InvocationTargetException | NoSuchMethodException e) {
+            throw new ExceptionDao("Erro ao listar objetos", e);
         }
         return list;
     }
 
-    private Long validarMaisDeUmRegistro(E valor)
-            throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionTipoChaveNaoEncontrada, ExceptionDao {
-        Connection connection = getConnection();
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        Long count = null;
-        try {
-            stm = connection.prepareStatement(
-                    "SELECT count(*) FROM " + getTableName() + " WHERE " + getNomeCampoChave(getTipoClasse()) + " = ?");
+    private Long validarMaisDeUmRegistro(E valor) throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionTipoChaveNaoEncontrada, ExceptionDao {
+        try (Connection connection = getConnection();
+             PreparedStatement stm = connection.prepareStatement(
+                     "SELECT count(*) FROM " + getTableName() + " WHERE " + getNomeCampoChave(getTipoClasse()) + " = ?")) {
             setParametrosQuerySelect(stm, valor);
-            rs = stm.executeQuery();
-            if (rs.next()) {
-                count = rs.getLong(1);
-                if (count > 1) {
-                    throw new ExceptionMaisDeUmRegistro("Encontrado mais de um registro de " + getTableName());
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    Long count = rs.getLong(1);
+                    if (count > 1) {
+                        throw new ExceptionMaisDeUmRegistro("Encontrado mais de um registro na tabela " + getTableName());
+                    }
+                    return count;
                 }
             }
-            return count;
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection(connection, stm, rs);
+            throw new ExceptionDao("Erro ao validar registros", e);
         }
-        return count;
+        return null;
     }
 
     private String getTableName() throws ExceptionTable {
@@ -251,24 +183,36 @@ public abstract class GenericDAO<T extends Persistente, E extends Serializable> 
             Tabela table = getTipoClasse().getAnnotation(Tabela.class);
             return table.value();
         } else {
-            throw new ExceptionTable("Tabela no Tipo " + getTipoClasse().getName() + " não encontrada");
+            throw new ExceptionTable("Tabela não encontrada para o tipo " + getTipoClasse().getName());
         }
     }
 
     private String getNomeCampoChave(Class<?> clazz) throws ExceptionTipoChaveNaoEncontrada {
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
+        for (Field field : clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(TipoChave.class) && field.isAnnotationPresent(ColunaTabela.class)) {
                 ColunaTabela coluna = field.getAnnotation(ColunaTabela.class);
                 return coluna.dbName();
             }
         }
-        return null;
+        throw new ExceptionTipoChaveNaoEncontrada("Campo chave não encontrado para o tipo " + clazz.getName());
+    }
+
+    private void preencherEntidade(ResultSet rs, T entity) throws SQLException, ExceptionElementoNaoConhecido, IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        Field[] fields = entity.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(ColunaTabela.class)) {
+                ColunaTabela coluna = field.getAnnotation(ColunaTabela.class);
+                String dbName = coluna.dbName();
+                String javaSetName = coluna.setJavaName();
+                Class<?> classField = field.getType();
+                Method method = entity.getClass().getMethod(javaSetName, classField);
+                setValueByType(entity, method, classField, rs, dbName);
+            }
+        }
     }
 
     private void setValueByType(T entity, Method method, Class<?> classField, ResultSet rs, String fieldName)
-            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, SQLException,
-            ExceptionElementoNaoConhecido {
+            throws IllegalAccessException, InvocationTargetException, SQLException, ExceptionElementoNaoConhecido {
 
         if (classField.equals(Integer.class)) {
             Integer val = rs.getInt(fieldName);
@@ -293,7 +237,7 @@ public abstract class GenericDAO<T extends Persistente, E extends Serializable> 
             LocalDateTime val = timestamp != null ? timestamp.toLocalDateTime() : null;
             method.invoke(entity, val);
         } else {
-            throw new ExceptionElementoNaoConhecido("TIPO DE CLASSE NÃO CONHECIDO: " + classField);
+            throw new ExceptionElementoNaoConhecido("Tipo de classe não conhecido: " + classField);
         }
     }
 }

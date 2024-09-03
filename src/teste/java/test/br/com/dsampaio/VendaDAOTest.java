@@ -28,6 +28,7 @@ import br.com.dsampaio.domain.Produto;
 import br.com.dsampaio.domain.Venda;
 import br.com.dsampaio.domain.Venda.Status;
 import br.com.dsampaio.exceptions.ExceptionDao;
+import br.com.dsampaio.exceptions.ExceptionElementoNaoConhecido;
 import br.com.dsampaio.exceptions.ExceptionMaisDeUmRegistro;
 import br.com.dsampaio.exceptions.ExceptionTable;
 import br.com.dsampaio.exceptions.ExceptionTipoChaveNaoEncontrada;
@@ -54,13 +55,13 @@ public class VendaDAOTest {
     }
 
     @After
-    public void end() throws ExceptionDao {
+    public void end() throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable {
         excluirVendas();
         excluirProdutos();
         clienteDao.excluir(this.cliente.getCpf());
     }
 
-    private void excluirProdutos() throws ExceptionDao {
+    private void excluirProdutos() throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable {
         Collection<Produto> list = this.produtoDao.buscarTodos();
         for (Produto prod : list) {
             this.produtoDao.excluir(prod.getCodigo());
@@ -68,7 +69,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void pesquisar() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void pesquisar() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         Venda venda = criarVenda("A1");
         Boolean retorno = vendaDao.cadastrar(venda);
         assertTrue(retorno);
@@ -78,7 +79,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void salvar() throws ExceptionTipoChaveNaoEncontrada, ExceptionDao, ExceptionMaisDeUmRegistro, ExceptionTable {
+    public void salvar() throws ExceptionTipoChaveNaoEncontrada, ExceptionDao, ExceptionMaisDeUmRegistro, ExceptionTable, SecurityException, ExceptionElementoNaoConhecido {
         Venda venda = criarVenda("A2");
         Boolean retorno = vendaDao.cadastrar(venda);
         assertTrue(retorno);
@@ -92,7 +93,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void cancelarVenda() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void cancelarVenda() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         String codigoVenda = "A3";
         Venda venda = criarVenda(codigoVenda);
         Boolean retorno = vendaDao.cadastrar(venda);
@@ -108,7 +109,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void adicionarMaisProdutosDoMesmo() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void adicionarMaisProdutosDoMesmo() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         String codigoVenda = "A4";
         Venda venda = criarVenda(codigoVenda);
         Boolean retorno = vendaDao.cadastrar(venda);
@@ -126,7 +127,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void adicionarMaisProdutosDiferentes() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void adicionarMaisProdutosDiferentes() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         String codigoVenda = "A5";
         Venda venda = criarVenda(codigoVenda);
         Boolean retorno = vendaDao.cadastrar(venda);
@@ -159,7 +160,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void removerProduto() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void removerProduto() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         String codigoVenda = "A7";
         Venda venda = criarVenda(codigoVenda);
         Boolean retorno = vendaDao.cadastrar(venda);
@@ -185,7 +186,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void removerApenasUmProduto() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void removerApenasUmProduto() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         String codigoVenda = "A8";
         Venda venda = criarVenda(codigoVenda);
         Boolean retorno = vendaDao.cadastrar(venda);
@@ -211,7 +212,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void removerTodosProdutos() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void removerTodosProdutos() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         String codigoVenda = "A9";
         Venda venda = criarVenda(codigoVenda);
         Boolean retorno = vendaDao.cadastrar(venda);
@@ -236,7 +237,7 @@ public class VendaDAOTest {
     }
 
     @Test
-    public void finalizarVenda() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void finalizarVenda() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         String codigoVenda = "A10";
         Venda venda = criarVenda(codigoVenda);
         Boolean retorno = vendaDao.cadastrar(venda);
@@ -252,7 +253,7 @@ public class VendaDAOTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void tentarAdicionarProdutosVendaFinalizada() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao {
+    public void tentarAdicionarProdutosVendaFinalizada() throws ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, SecurityException, ExceptionElementoNaoConhecido {
         String codigoVenda = "A11";
         Venda venda = criarVenda(codigoVenda);
         Boolean retorno = vendaDao.cadastrar(venda);
@@ -290,7 +291,7 @@ public class VendaDAOTest {
         cliente.setEstado("SP");
         cliente.setNumero(10);
         cliente.setTelefone(1199999999L);
-        cliente.setIdade(25L);
+        cliente.setIdade(25);
         clienteDao.cadastrar(cliente);
         return cliente;
     }

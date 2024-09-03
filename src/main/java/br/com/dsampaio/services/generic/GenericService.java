@@ -6,6 +6,7 @@ import java.util.Collection;
 import br.com.dsampaio.dao.Persistente;
 import br.com.dsampaio.dao.generic.IGenericDAO;
 import br.com.dsampaio.exceptions.ExceptionDao;
+import br.com.dsampaio.exceptions.ExceptionElementoNaoConhecido;
 import br.com.dsampaio.exceptions.ExceptionMaisDeUmRegistro;
 import br.com.dsampaio.exceptions.ExceptionTable;
 import br.com.dsampaio.exceptions.ExceptionTipoChaveNaoEncontrada;
@@ -30,7 +31,7 @@ public abstract class GenericService<T extends Persistente, E extends Serializab
 	public void alterar(T entity) throws ExceptionTipoChaveNaoEncontrada, ExceptionDao {
 		this.dao.alterar(entity);
 	}
-	public T consultar(E valor) throws ExceptionDao {
+	public T consultar(E valor) throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTipoChaveNaoEncontrada {
 		try {
 			return this.dao.consultar(valor);
 		} catch (ExceptionMaisDeUmRegistro | ExceptionTable e) {
@@ -40,7 +41,7 @@ public abstract class GenericService<T extends Persistente, E extends Serializab
 		}
 		return null;
 	}
-	public Collection<T> buscarTodos() throws ExceptionDao {
+	public Collection<T> buscarTodos() throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable {
 		return this.dao.buscarTodos();
 	}
 	

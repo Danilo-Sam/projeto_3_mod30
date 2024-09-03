@@ -16,6 +16,7 @@ import br.com.dsampaio.dao.IProdutoDAO;
 import br.com.dsampaio.dao.ProdutoDAO;
 import br.com.dsampaio.domain.Produto;
 import br.com.dsampaio.exceptions.ExceptionDao;
+import br.com.dsampaio.exceptions.ExceptionElementoNaoConhecido;
 import br.com.dsampaio.exceptions.ExceptionMaisDeUmRegistro;
 import br.com.dsampaio.exceptions.ExceptionTable;
 import br.com.dsampaio.exceptions.ExceptionTipoChaveNaoEncontrada;
@@ -29,7 +30,7 @@ public class ProdutoDAOTest {
     }
 
     @After
-    public void end() throws ExceptionDao {
+    public void end() throws ExceptionDao, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable {
         Collection<Produto> list = produtoDao.buscarTodos();
         list.forEach(prod -> {
             try {
@@ -54,7 +55,7 @@ public class ProdutoDAOTest {
     }
 
     @Test
-    public void pesquisar() throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, ExceptionTipoChaveNaoEncontrada {
+    public void pesquisar() throws ExceptionMaisDeUmRegistro, ExceptionTable, ExceptionDao, ExceptionTipoChaveNaoEncontrada, SecurityException, ExceptionElementoNaoConhecido {
         Produto produto = criarProduto("P1");
         Assert.assertNotNull(produto);
         Produto produtoDB = this.produtoDao.consultar(produto.getCodigo());
@@ -68,7 +69,7 @@ public class ProdutoDAOTest {
     }
 
     @Test
-    public void excluir() throws ExceptionDao, ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable {
+    public void excluir() throws ExceptionDao, ExceptionTipoChaveNaoEncontrada, ExceptionMaisDeUmRegistro, ExceptionTable, SecurityException, ExceptionElementoNaoConhecido {
         Produto produto = criarProduto("P3");
         Assert.assertNotNull(produto);
         produtoDao.excluir(produto.getCodigo());
@@ -77,7 +78,7 @@ public class ProdutoDAOTest {
     }
 
     @Test
-    public void alterarProduto() throws ExceptionTipoChaveNaoEncontrada, ExceptionDao, ExceptionMaisDeUmRegistro, ExceptionTable {
+    public void alterarProduto() throws ExceptionTipoChaveNaoEncontrada, ExceptionDao, ExceptionMaisDeUmRegistro, ExceptionTable, SecurityException, ExceptionElementoNaoConhecido {
         Produto produto = criarProduto("P4");
         produto.setNome("Produto Alterado");
         produtoDao.alterar(produto);
@@ -87,7 +88,7 @@ public class ProdutoDAOTest {
     }
 
     @Test
-    public void buscarTodos() throws ExceptionDao, ExceptionTipoChaveNaoEncontrada {
+    public void buscarTodos() throws ExceptionDao, ExceptionTipoChaveNaoEncontrada, SecurityException, ExceptionElementoNaoConhecido, ExceptionTable {
         criarProduto("P5");
         criarProduto("P6");
         Collection<Produto> list = produtoDao.buscarTodos();

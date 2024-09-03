@@ -17,7 +17,7 @@ public class ClienteFactory {
 		cliente.setNumero(rs.getInt(("NUMERO")));
 		cliente.setCidade(rs.getString(("CIDADE")));
 		cliente.setEstado(rs.getString(("ESTADO")));
-		cliente.setIdade(rs.getLong(("IDADE")));
+		cliente.setIdade(rs.getInt(("IDADE")));
 		return cliente;
 	}
 
