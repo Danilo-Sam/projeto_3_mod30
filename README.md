@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistema de Vendas desenvolvido no módulo 30">
     <meta name="keywords" content="Java, PostgreSQL, JUnit, Eclipse">
-    <meta name="author" content="Ana Alice Rodrigues">
+    <meta name="author" content="Danilo de Brito Sampaio">
   </head>
 <body>
 
